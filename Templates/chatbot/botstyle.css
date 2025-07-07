@@ -1,0 +1,303 @@
+/* CSS Variables for Theme Management */
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --accent-color: #4cc9f0;
+    --dark-color: #1b263b;
+    --light-color: #f8f9fa;
+    --success-color: #4ade80;
+    --danger-color: #f87171;
+    --bg-color: #f5f7fa;
+    --text-color: #1f2937;
+    --border-color: #e5e7eb;
+    --hover-color: #f3f4f6;
+}
+
+/* Dark Theme Variables */
+[data-theme="dark"] {
+    --bg-color: #1a1a2e;
+    --text-color: #e2e8f0;
+    --border-color: #374151;
+    --hover-color: #2d3748;
+    --light-color: #2a2a3e;
+}
+
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Navigation */
+nav {
+    background-color: var(--light-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+nav .container {
+    max-width: 1200px;
+}
+
+/* Buttons */
+button {
+    cursor: pointer;
+    outline: none;
+    border: none;
+    background: none;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+}
+
+/* Select Dropdown */
+select {
+    background-color: var(--hover-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+select:focus {
+    outline: none;
+    border-color: transparent;
+}
+
+/* Panels */
+#history-panel,
+#menu-panel {
+    background-color: var(--light-color);
+    border-left: 1px solid var(--border-color);
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+#menu-panel {
+    border-left: none;
+    border-right: 1px solid var(--border-color);
+    transform: translateX(-100%);
+}
+
+.panel-open {
+    transform: translateX(0) !important;
+}
+
+/* Overlay */
+#overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 40;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#overlay.show {
+    display: block !important;
+    opacity: 1;
+}
+
+/* Chat */
+#chat-messages {
+    background-color: var(--light-color);
+    overflow-y: auto;
+    min-height: 400px;
+    max-height: 600px;
+    padding: 1rem;
+}
+
+#chat-messages > .justify-end {
+    justify-content: flex-end !important;
+}
+
+.message-user {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.message-ai {
+    background-color: var(--hover-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.message-bounce {
+    animation: bounce 0.3s ease;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* Typing Indicator */
+.typing-indicator span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+/* Input */
+#message-input {
+    background-color: var(--light-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+#message-input::placeholder {
+    color: #9ca3af;
+}
+
+#message-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Send Button */
+#send-btn {
+    background-color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+#send-btn:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+}
+
+#send-btn:active {
+    transform: translateY(0);
+}
+
+/* History Item */
+.history-item {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.history-item:hover {
+    background-color: var(--hover-color);
+}
+
+.history-date {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.history-preview {
+    font-size: 0.875rem;
+    color: var(--text-color);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Scrollbars */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .container { padding: 0 1rem; }
+    #history-panel, #menu-panel { width: 100%; max-width: 320px; }
+    nav .flex { flex-wrap: wrap; gap: 0.5rem; }
+    nav .flex > div { flex: 1; min-width: fit-content; }
+}
+
+/* Accessibility */
+button:focus, select:focus, input:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Effects */
+.fade-in { animation: fadeIn 0.3s ease-in; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up { animation: slideUp 0.3s ease-out; }
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.theme-icon {
+    transition: transform 0.3s ease;
+}
+
+.theme-icon.rotate {
+    transform: rotate(180deg);
+}
+
+.status-indicator {
+    position: relative;
+}
+
+.status-indicator::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background-color: var(--success-color);
+    border-radius: 50%;
+    border: 2px solid var(--light-color);
+}
+
+#message-count {
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+nav button:hover,
+.history-item:hover,
+#menu-panel a:hover {
+    background-color: var(--hover-color);
+    border-radius: 8px;
+}
