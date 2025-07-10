@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create an Account – Sign Up</title>
+  <link rel="stylesheet" href="loginstyle1.css">
+</head>
+<body>
+  <div class="wrapper">
+    <form id="signupForm" novalidate>
+      <h2>Sign Up</h2>
+
+      <label for="name">Full Name:</label>
+      <input type="text" id="name" name="name" required minlength="2" maxlength="50" autocomplete="name" />
+
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required minlength="3" maxlength="20" autocomplete="username" />
+
+      <label for="email">Email Address:</label>
+      <input type="email" id="email" name="email" required autocomplete="email" />
+
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required minlength="6" autocomplete="new-password" />
+
+      <button type="submit">Create Account</button>
+    </form>
+
+    <p>
+      Already have an account? <a href="login.html">Log in</a>
+    </p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
