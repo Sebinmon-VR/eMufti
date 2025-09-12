@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Files</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <!-- Top navbar -->
+  <div class="navbar">
+    <div class="title">EMufthi<span class="badge"></span></div>
+    <div class="nav-links">
+      <a href="#">Changelog</a>
+      <a href="#">Docs</a>
+      <a href="#">Help</a>
+      <div class="avatar">S</div>
+    </div>
+  </div>
+
+  <div class="page">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <ul>
+        <li class="active"><span class="icon">📂</span> Files</li>
+        <li><span class="icon">✏️</span> Text</li>
+        <li><span class="icon">🌐</span> Website</li>
+        <li><span class="icon">❓</span> Q&A</li>
+        <li><span class="icon">📓</span> Notion</li>
+      </ul>
+    </div>
+
+    <!-- Main content -->
+    <div class="content">
+      <h2>Files</h2>
+      <p>Upload documents to train your AI. Extract text from PDFs, DOCX, and TXT files.</p>
+
+      <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+        <div class="upload-card">
+          <div class="upload-warning">
+            ⚠️ If you are uploading a PDF, make sure you can select/highlight the text.
+          </div>
+          <label class="upload-box" for="fileInput">
+            <!-- make the file input cover the upload box (invisible) so native clicks always work -->
+            <input id="fileInput" type="file" name="files" multiple accept=".pdf,.doc,.docx,.txt">
+            ⬆️ Drag & drop files here, or click to select files <br>
+            <small>Supported file types: pdf, doc, docx, txt — you can select multiple files</small>
+          </label>
+
+          <div id="selectionPreview" class="selection-preview">
+            <h4 id="selectionTitle" style="margin:8px 0 6px 0; font-size:14px;">No files selected</h4>
+            <div id="selectedFilesList" class="selected-files-list"></div>
+          </div>
+
+          <button id="uploadButton" type="submit" disabled>Upload & Train</button>
+        </div>
+      </form>
+
+      <!-- Scrollable file grid -->
+      <div class="file-grid-container">
+        <div class="uploaded-files-grid">
+          {% for f in files %}
+          <div class="file-card">
+            <div class="file-preview">
+              {% if f.name.endswith('.pdf') %} 📄
+              {% elif f.name.endswith('.doc') or f.name.endswith('.docx') %} 📝
+              {% elif f.name.endswith('.txt') %} 📃
+              {% else %} 📁 {% endif %}
+            </div>
+            <div class="file-name">{{ f.name }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sources -->
+    <div class="sources">
+      <h3>Sources</h3>
+      <div class="size">Total size: {{ files|map(attribute='size')|sum / 1024 | round(1) }} KB</div>
+      
+      <ul class="file-list">
+        {% for f in files %}
+          <li {% if loop.last %} style="font-weight:bold; color:green;" {% endif %}>
+            {{ f.name }} ({{ (f.size/1024)|round(1) }} KB)
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <script>
+    // Wire up the hidden file input and preview area
+    const fileInput = document.getElementById('fileInput');
+    const uploadBox = document.querySelector('.upload-box');
+    const selectionTitle = document.getElementById('selectionTitle');
+    const selectedFilesList = document.getElementById('selectedFilesList');
+
+  // fileInput now sits over the upload box so native click works; no manual click handler needed
+
+    // handle drag & drop
+    uploadBox.addEventListener('dragover', (e) => { e.preventDefault(); uploadBox.classList.add('dragover'); });
+    uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('dragover'));
+    uploadBox.addEventListener('drop', (e) => {
+      e.preventDefault(); uploadBox.classList.remove('dragover');
+      const dtFiles = Array.from(e.dataTransfer.files);
+      // assign to file input via DataTransfer if supported
+      if (dtFiles.length) {
+        const dt = new DataTransfer();
+        dtFiles.forEach(f => dt.items.add(f));
+        fileInput.files = dt.files;
+        renderSelectedFiles();
+      }
+    });
+
+  fileInput.addEventListener('change', renderSelectedFiles);
+
+    function renderSelectedFiles(){
+      const files = Array.from(fileInput.files || []);
+      selectedFilesList.innerHTML = '';
+      if (files.length === 0){
+        selectionTitle.textContent = 'No files selected';
+        return;
+      }
+      selectionTitle.textContent = files.length + ' file(s) selected';
+        files.forEach((f, idx) => {
+          const el = document.createElement('div');
+          el.className = 'selected-file';
+          const icon = getIconForName(f.name);
+          // remove button
+          const removeBtn = document.createElement('button');
+          removeBtn.type = 'button';
+          removeBtn.className = 'sel-remove';
+          removeBtn.title = 'Remove file';
+          removeBtn.innerHTML = '✖';
+          removeBtn.addEventListener('click', () => animateAndRemove(el, idx));
+
+          el.innerHTML = `<span class="sel-icon">${icon}</span><div class="sel-name">${f.name}</div><div class="sel-size">${(f.size/1024).toFixed(1)} KB</div>`;
+          el.appendChild(removeBtn);
+          selectedFilesList.appendChild(el);
+        });
+      // enable upload button when files exist
+      document.getElementById('uploadButton').disabled = files.length === 0;
+    }
+
+    function getIconForName(name){
+      name = name.toLowerCase();
+      if (name.endsWith('.pdf')) return '📄';
+      if (name.endsWith('.doc') || name.endsWith('.docx')) return '📝';
+      if (name.endsWith('.txt')) return '📃';
+      return '📁';
+    }
+
+    function animateAndRemove(element, index){
+      // play fade out animation by adding class, then remove from DOM after transition
+      element.classList.add('removing');
+      element.addEventListener('transitionend', function onEnd(e){
+        if (e.propertyName === 'opacity'){
+          element.removeEventListener('transitionend', onEnd);
+          // actually remove the file from the input now
+          removeFileAtIndex(index);
+        }
+      });
+    }
+
+    function removeFileAtIndex(index){
+      const current = Array.from(fileInput.files || []);
+      if (index < 0 || index >= current.length) return;
+      const dt = new DataTransfer();
+      current.forEach((f, i) => { if (i !== index) dt.items.add(f); });
+      fileInput.files = dt.files;
+      renderSelectedFiles();
+    }
+  </script>
+
+  <style>
+    /* Preview styles */
+    .selection-preview { margin-top: 12px; }
+    .selected-files-list { display:flex; flex-direction:column; gap:8px; max-height:180px; overflow:auto; }
+    .selected-file { display:flex; align-items:center; gap:8px; background:#fff; padding:8px; border-radius:6px; border:1px solid #eee; }
+    .sel-icon { font-size:20px; width:28px; text-align:center }
+    .sel-name { flex:1; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    .sel-size { font-size:12px; color:#666; margin-left:8px }
+  .sel-remove { background: transparent; border: none; color: #a00; font-size:14px; cursor:pointer; margin-left:8px }
+  .sel-remove:hover { color: #e00 }
+  .selected-file { transition: opacity 220ms ease, height 220ms ease, margin 220ms ease, padding 220ms ease; }
+  .selected-file.removing { opacity: 0; height: 0; margin: 0; padding: 0; overflow: hidden; }
+    .upload-box.dragover { background:#eef6ff; border-color:#66a3ff }
+    /* move button styling from .sources to upload card when present */
+    #uploadButton { margin-top:12px; background:#000; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer }
+    #uploadButton:hover { background:#222 }
+  </style>
+</body>
+</html>
