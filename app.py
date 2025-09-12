@@ -1,19 +1,32 @@
+# ---------------------------------------------------------------------------------------
+# Imports / Dependencies
+# ---------------------------------------------------------------------------------------
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import os
 from flask import jsonify
+
+# ---------------------------------------------------------------------------------------
+# App configuration
 # ---------------------------------------------------------------------------------------
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 # Store uploaded files metadata in memory for PoC
 uploaded_files = []
+
+
 # ---------------------------------------------------------------------------------------
-
-
+# Helpers / Session utilities
+# ---------------------------------------------------------------------------------------
 def is_logged_in():
+    """Return True when the user is logged in (stored in Flask session)."""
     return session.get('logged_in', False)
+
+
+# ---------------------------------------------------------------------------------------
+#  Routes / Controllers
+# ---------------------------------------------------------------------------------------
 
 @app.route('/')
 def home():
@@ -61,8 +74,6 @@ def upload_file():
             file.save(filepath)
             uploaded_files.append({"name": filename, "size": os.path.getsize(filepath)})
     return redirect(url_for('dashboard'))
-
-
 
 # ---------------------------------------------------------------------------------------
 
